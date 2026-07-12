@@ -3,8 +3,19 @@ import Link from "next/link";
 import { Plus, Wrench, AlertCircle, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default async function MaintenancePage() {
-  const requests = await getMaintenanceRequests();
+export default async function MaintenancePage(props: { searchParams?: Promise<{ q?: string }> }) {
+  const searchParams = await (props.searchParams ?? Promise.resolve({} as { q?: string }));
+  const query = (searchParams.q || "").toLowerCase();
+  let requests = await getMaintenanceRequests();
+  if (query) {
+    requests = requests.filter((r: any) =>
+      (r.asset?.name?.toLowerCase() || "").includes(query) ||
+      (r.asset?.asset_tag?.toLowerCase() || "").includes(query) ||
+      (r.requester?.full_name?.toLowerCase() || "").includes(query) ||
+      (r.description?.toLowerCase() || "").includes(query) ||
+      (r.priority?.toLowerCase() || "").includes(query)
+    );
+  }
 
   const getPriorityColor = (priority: string) => {
     switch(priority) {
@@ -43,14 +54,16 @@ export default async function MaintenancePage() {
       </div>
 
       <div className="flex gap-4 mb-6">
-        <div className="relative flex-1 max-w-md">
+        <form method="GET" className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
           <input 
             type="text" 
+            name="q"
+            defaultValue={query}
             placeholder="Search tickets, assets..." 
             className="w-full pl-9 pr-4 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] text-[var(--text-primary)]"
           />
-        </div>
+        </form>
         <Button variant="outline" className="border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface)]">
           <Filter className="w-4 h-4 mr-2" />
           Filter

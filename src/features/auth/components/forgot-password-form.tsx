@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { resetPasswordSchema, ResetPasswordValues } from "../validators/auth-schemas";
+import { resetPassword } from "../actions/auth-actions";
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -25,14 +26,12 @@ export function ForgotPasswordForm() {
     setError(null);
     setSuccess(false);
     
-    // Simulating forgot password server action
-    // const result = await resetPassword(values.email);
-    // if (result?.error) { setError(result.error); }
-    // else { setSuccess(true); }
-    
-    setTimeout(() => {
+    const result = await resetPassword(values.email);
+    if (result?.error) {
+      setError(result.error);
+    } else {
       setSuccess(true);
-    }, 1000);
+    }
   }
 
   if (success) {

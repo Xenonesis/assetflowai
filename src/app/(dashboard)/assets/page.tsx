@@ -3,8 +3,17 @@ import Link from "next/link";
 import { Plus, QrCode, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default async function AssetsPage() {
-  const assets = await getAssets();
+export default async function AssetsPage(props: { searchParams?: Promise<{ q?: string }> }) {
+  const searchParams = await (props.searchParams ?? Promise.resolve({} as { q?: string }));
+  const query = (searchParams.q || "").toLowerCase();
+  let assets = await getAssets();
+  if (query) {
+    assets = assets.filter((a: any) =>
+      (a.name?.toLowerCase() || "").includes(query) ||
+      (a.asset_tag?.toLowerCase() || "").includes(query) ||
+      (a.serial_number?.toLowerCase() || "").includes(query)
+    );
+  }
 
   const getStatusColor = (status: string) => {
     switch(status) {
@@ -32,14 +41,16 @@ export default async function AssetsPage() {
       </div>
 
       <div className="flex gap-4 mb-6">
-        <div className="relative flex-1 max-w-md">
+        <form method="GET" className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
           <input 
             type="text" 
+            name="q"
+            defaultValue={query}
             placeholder="Search by name, tag, or serial..." 
             className="w-full pl-9 pr-4 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] text-[var(--text-primary)]"
           />
-        </div>
+        </form>
         <Button variant="outline" className="border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface)]">
           <Filter className="w-4 h-4 mr-2" />
           Filter
