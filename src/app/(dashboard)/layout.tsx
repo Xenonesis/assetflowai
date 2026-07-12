@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Shield, LayoutDashboard, Users, Box, Wrench, Calendar, ClipboardCheck, Settings, Bell, Search, LogOut } from "lucide-react";
 import { AIAssistant } from "@/features/ai/components/ai-assistant";
 
+import { ThemeToggle } from "@/components/theme-toggle";
+
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[var(--background)] flex">
@@ -59,6 +61,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
           
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <button className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--background)] rounded-full transition-colors relative">
               <Bell size={20} />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--danger)] rounded-full border border-[var(--surface)]"></span>

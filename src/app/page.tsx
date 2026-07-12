@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Shield, ArrowRight, LayoutDashboard, Zap, Box, ShieldCheck, Activity, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default async function LandingPage() {
   const supabase = await createClient();
@@ -26,6 +27,7 @@ export default async function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             {session ? (
               <Link href="/dashboard">
                 <Button className="rounded-full px-6 h-10 shadow-[0_0_20px_rgba(var(--primary-rgb),0.15)] hover:shadow-[0_0_25px_rgba(var(--primary-rgb),0.25)] transition-all">
