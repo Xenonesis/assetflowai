@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { CommandPalette } from "@/components/command-palette";
 import { Shield, LayoutDashboard, Users, Box, Wrench, Calendar, ClipboardCheck, Settings, Bell, Search, LogOut, ArrowLeftRight, BarChart3, History, Building2, Menu, X, ChevronLeft } from "lucide-react";
 import { AIAssistant } from "@/features/ai/components/ai-assistant";
+import { logout } from "@/features/auth/actions/auth-actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Logo } from "@/components/logo";
 
@@ -44,7 +45,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         .from("profiles")
         .select("full_name, email")
         .eq("id", user.id)
-        .single()
+        .maybeSingle()
         .then(({ data: profile }) => {
           if (!isMounted) return;
           if (profile) {
@@ -150,7 +151,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </nav>
             
             <div className="p-4 border-t border-[var(--border)]">
-              <button className="flex items-center gap-3 w-full px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 rounded-md transition-colors">
+              <button 
+                onClick={async () => await logout()}
+                className="flex items-center gap-3 w-full px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 rounded-md transition-colors"
+              >
                 <LogOut size={18} />
                 <span>Sign out</span>
               </button>
@@ -186,6 +190,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         
         <div className="p-4 border-t border-[var(--border)]">
           <button 
+            onClick={async () => await logout()}
             className={`flex items-center text-sm text-[var(--text-secondary)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 rounded-md transition-colors py-2 ${isCollapsed ? "justify-center w-full px-0" : "w-full px-3 gap-3"}`}
             title={isCollapsed ? "Sign out" : undefined}
           >

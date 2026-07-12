@@ -22,5 +22,5 @@ export async function POST(req: Request) {
     tools: aiTools,
   });
 
-  return result.toTextStreamResponse();
+  return result.toUIMessageStreamResponse();
 }

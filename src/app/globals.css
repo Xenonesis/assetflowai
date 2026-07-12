@@ -18,7 +18,12 @@
   --text-secondary: #475569;
   --text-muted: #94a3b8;
   
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --info: #2563eb;
   --danger: #ef4444;
+  
+  --radius-md: 8px;
 }
 
 .dark {
@@ -37,7 +42,12 @@
   --text-secondary: #a1a1aa;
   --text-muted: #71717a;
   
+  --success: #22c55e;
+  --warning: #eab308;
+  --info: #3b82f6;
   --danger: #ef4444;
+  
+  --radius-md: 8px;
 }
 
 @theme inline {

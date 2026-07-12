@@ -46,7 +46,9 @@ export async function updateSession(request: NextRequest) {
                            request.nextUrl.pathname.startsWith('/reports') ||
                            request.nextUrl.pathname.startsWith('/notifications') ||
                            request.nextUrl.pathname.startsWith('/activity') ||
-                           request.nextUrl.pathname.startsWith('/settings');
+                           request.nextUrl.pathname.startsWith('/settings') ||
+                           request.nextUrl.pathname.startsWith('/profile') ||
+                           request.nextUrl.pathname.startsWith('/transfers');
 
   if (user && isAuthRoute) {
     // Redirect logged in users away from auth pages

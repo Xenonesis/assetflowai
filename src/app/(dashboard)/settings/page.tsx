@@ -28,7 +28,7 @@ export default async function SettingsPage() {
       department:departments(name)
     `)
     .eq("id", user.id)
-    .single()) as unknown as { data: UserProfile | null };
+    .maybeSingle()) as unknown as { data: UserProfile | null };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
