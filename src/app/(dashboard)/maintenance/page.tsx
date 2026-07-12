@@ -79,8 +79,10 @@ export default async function MaintenancePage() {
                       {req.id.split('-')[0]}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-medium text-[var(--text-primary)]">{req.asset?.name || 'Unknown'}</div>
-                      <div className="text-xs text-[var(--text-secondary)] mt-0.5">{req.asset?.asset_tag || '-'}</div>
+                      <Link href={`/maintenance/${req.id}`} className="hover:underline block">
+                        <div className="font-medium text-[var(--text-primary)]">{req.asset?.name || 'Unknown'}</div>
+                        <div className="text-xs text-[var(--text-secondary)] mt-0.5">{req.asset?.asset_tag || '-'}</div>
+                      </Link>
                     </td>
                     <td className="px-6 py-4 text-[var(--text-secondary)]">
                       {req.requester?.full_name || 'Unknown'}

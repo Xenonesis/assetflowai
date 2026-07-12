@@ -48,8 +48,10 @@ export default async function BookingsPage() {
                 bookings.map((b) => (
                   <tr key={b.id} className="hover:bg-[var(--background)] transition-colors">
                     <td className="px-6 py-4">
-                      <div className="font-medium text-[var(--text-primary)]">{b.asset?.name || 'Unknown'}</div>
-                      <div className="text-xs text-[var(--text-secondary)] mt-0.5">{b.asset?.asset_tag || '-'}</div>
+                      <Link href={`/bookings/${b.id}`} className="hover:underline block">
+                        <div className="font-medium text-[var(--text-primary)]">{b.asset?.name || 'Unknown'}</div>
+                        <div className="text-xs text-[var(--text-secondary)] mt-0.5">{b.asset?.asset_tag || '-'}</div>
+                      </Link>
                     </td>
                     <td className="px-6 py-4 text-[var(--text-secondary)]">
                       {b.user?.full_name || 'Unknown'}

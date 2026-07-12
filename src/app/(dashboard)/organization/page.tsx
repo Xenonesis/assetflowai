@@ -78,7 +78,11 @@ export default async function OrganizationPage() {
         {departments && departments.length > 0 ? (
           <div className="divide-y divide-[var(--border)]">
             {departments.map((dept) => (
-              <div key={dept.id} className="px-6 py-4 flex items-center justify-between hover:bg-[var(--background)] transition-colors">
+              <Link 
+                key={dept.id} 
+                href={`/organization/departments/${dept.id}`}
+                className="px-6 py-4 flex items-center justify-between hover:bg-[var(--background)] transition-colors block"
+              >
                 <div>
                   <p className="font-medium text-[var(--text-primary)]">{dept.name}</p>
                   <p className="text-sm text-[var(--text-secondary)] uppercase tracking-wider">{dept.code}</p>
@@ -87,7 +91,7 @@ export default async function OrganizationPage() {
                   {/* Assuming dept.head exists if joined */}
                   Head: {dept.head ? (dept.head as any).full_name : "Unassigned"}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         ) : (
