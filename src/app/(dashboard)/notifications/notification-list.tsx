@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { markNotificationAsRead, markAllNotificationsAsRead } from "@/features/notifications/actions/notification-actions";
 import { Button } from "@/components/ui/button";
 import { Bell, BellOff, Check, Loader2 } from "lucide-react";
@@ -10,6 +11,38 @@ import Link from "next/link";
 export function NotificationList({ initialNotifications = [] }: { initialNotifications: any[] }) {
   const [notifications, setNotifications] = useState(initialNotifications);
   const [markingAll, setMarkingAll] = useState(false);
+
+  // Subscribe to real-time notification inserts
+  useEffect(() => {
+    const supabase = createClient();
+    let channel: any = null;
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+
+      channel = supabase
+        .channel(`realtime-notifications-page-${user.id}-${Math.random().toString(36).substring(7)}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${user.id}`,
+          },
+          (payload: any) => {
+            setNotifications(prev => [payload.new, ...prev]);
+          }
+        )
+        .subscribe();
+    });
+
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
+  }, []);
 
   const handleMarkAsRead = async (id: string) => {
     try {
