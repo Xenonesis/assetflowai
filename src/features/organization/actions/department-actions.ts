@@ -45,7 +45,7 @@ export async function getDepartments() {
 
   const { data, error } = (await supabase
     .from("departments")
-    .select("*, head:profiles(full_name)")
+    .select("*, head:profiles!head_id(full_name)")
     .order("name")) as unknown as { data: Department[] | null; error: any };
 
   if (error) {

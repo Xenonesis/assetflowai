@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/logo";
 import { 
   Shield, 
   ArrowRight, 
@@ -32,11 +33,8 @@ export default async function LandingPage() {
       {/* Header */}
       <header className="h-20 border-b border-[var(--border)] bg-[var(--background)]/75 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
         <div className="container mx-auto px-6 h-full flex items-center justify-between max-w-7xl">
-          <Link href="/" className="flex items-center gap-2.5 text-[var(--primary)] font-bold text-xl group">
-            <div className="w-9 h-9 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Shield className="w-5 h-5" />
-            </div>
-            <span className="tracking-tight text-[var(--text-primary)] font-extrabold">AssetFlow AI</span>
+          <Link href="/" className="group">
+            <Logo textClassName="tracking-tight text-[var(--text-primary)] font-extrabold text-xl" iconClassName="w-9 h-9" />
           </Link>
           
           <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-[var(--text-secondary)]">
@@ -415,8 +413,8 @@ export default async function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-[var(--border)] bg-[var(--surface-elevated)]/20 py-12 transition-colors duration-300">
         <div className="container mx-auto px-6 max-w-7xl flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2.5 text-[var(--text-secondary)] font-semibold">
-            <Shield className="w-5 h-5 text-[var(--primary)]" />
+          <div className="flex items-center gap-3 text-[var(--text-secondary)] font-semibold">
+            <Logo mode="icon" iconClassName="w-6 h-6" />
             <span>© 2026 AssetFlow AI. All rights reserved.</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-[var(--text-muted)] font-medium">

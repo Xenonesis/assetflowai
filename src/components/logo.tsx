@@ -1,0 +1,73 @@
+import React from "react";
+
+interface LogoProps {
+  mode?: "full" | "icon";
+  className?: string;
+  iconClassName?: string;
+  textClassName?: string;
+}
+
+export function Logo({
+  mode = "full",
+  className = "",
+  iconClassName = "w-6 h-6",
+  textClassName = "",
+}: LogoProps) {
+  const icon = (
+    <svg
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`${iconClassName} select-none`}
+    >
+      <defs>
+        <linearGradient id="logo-top-grad" x1="5.3" y1="11" x2="26.7" y2="11" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#60a5fa" />
+          <stop offset="100%" stopColor="#3b82f6" />
+        </linearGradient>
+        <linearGradient id="logo-left-grad" x1="4" y1="13.1" x2="14.4" y2="30" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#3b82f6" />
+          <stop offset="100%" stopColor="#1d4ed8" />
+        </linearGradient>
+        <linearGradient id="logo-right-grad" x1="17.6" y1="13.1" x2="28" y2="30" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#06b6d4" />
+          <stop offset="100%" stopColor="#3b82f6" />
+        </linearGradient>
+      </defs>
+      
+      {/* Top Face - Floating Glass Panel */}
+      <path
+        d="M14.8,4.8 C15.5,4.4 16.5,4.4 17.2,4.8 L26.7,10.1 C27.4,10.5 27.4,11.5 26.7,11.9 L17.2,17.2 C16.5,17.6 15.5,17.6 14.8,17.2 L5.3,11.9 C4.6,11.5 4.6,10.5 5.3,10.1 Z"
+        fill="url(#logo-top-grad)"
+        className="transition-transform duration-300 ease-out group-hover:-translate-y-0.5"
+      />
+      
+      {/* Left Face - Shield Panel */}
+      <path
+        d="M4.8,14.6 C4.5,14.1 4.8,13.4 5.4,13.1 L13.6,18.6 C14.1,18.9 14.4,19.5 14.4,20.1 L14.4,29.1 C14.4,29.8 13.7,30.3 13.1,30.0 L4.9,25.5 C4.3,25.2 4.0,24.6 4.0,24.0 L4.0,15.6 C4.0,15.2 4.3,14.8 4.8,14.6 Z"
+        fill="url(#logo-left-grad)"
+        className="transition-transform duration-300 ease-out group-hover:-translate-x-0.5 group-hover:translate-y-0.5"
+      />
+      
+      {/* Right Face - Flow Panel */}
+      <path
+        d="M27.2,14.6 C27.5,14.1 27.2,13.4 26.6,13.1 L18.4,18.6 C17.9,18.9 17.6,19.5 17.6,20.1 L17.6,29.1 C17.6,29.8 18.3,30.3 18.9,30.0 L27.1,25.5 C27.7,25.2 28.0,24.6 28.0,24.0 L28.0,15.6 C28.0,15.2 27.7,14.8 27.2,14.6 Z"
+        fill="url(#logo-right-grad)"
+        className="transition-transform duration-300 ease-out group-hover:translate-x-0.5 group-hover:translate-y-0.5"
+      />
+    </svg>
+  );
+
+  if (mode === "icon") {
+    return icon;
+  }
+
+  return (
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      {icon}
+      <span className={`tracking-tight font-extrabold text-[var(--text-primary)] ${textClassName}`}>
+        AssetFlow AI
+      </span>
+    </div>
+  );
+}

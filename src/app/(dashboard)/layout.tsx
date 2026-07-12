@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Shield, LayoutDashboard, Users, Box, Wrench, Calendar, ClipboardCheck, Settings, Bell, Search, LogOut, ArrowLeftRight, BarChart3, History, Building2, Menu, X, ChevronLeft } from "lucide-react";
 import { AIAssistant } from "@/features/ai/components/ai-assistant";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Logo } from "@/components/logo";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -44,9 +45,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           />
           <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-[var(--surface-elevated)] border-r border-[var(--border)] flex flex-col md:hidden animate-in slide-in-from-left duration-200">
             <div className="h-16 flex items-center justify-between px-6 border-b border-[var(--border)]">
-              <Link href="/dashboard" className="flex items-center gap-2 text-[var(--primary)] font-bold text-lg" onClick={() => setIsMobileOpen(false)}>
-                <Shield className="w-5 h-5" />
-                <span>AssetFlow AI</span>
+              <Link href="/dashboard" className="group" onClick={() => setIsMobileOpen(false)}>
+                <Logo textClassName="text-lg font-bold" iconClassName="w-5 h-5" />
               </Link>
               <button
                 onClick={() => setIsMobileOpen(false)}
@@ -74,14 +74,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <aside className={`bg-[var(--surface-elevated)] border-r border-[var(--border)] hidden md:flex flex-col transition-all duration-300 ease-in-out shrink-0 ${isCollapsed ? "w-16" : "w-64"}`}>
         <div className="h-16 flex items-center justify-between px-4 border-b border-[var(--border)]">
           {!isCollapsed && (
-            <Link href="/dashboard" className="flex items-center gap-2 text-[var(--primary)] font-bold text-lg overflow-hidden whitespace-nowrap">
-              <Shield className="w-5 h-5 shrink-0" />
-              <span>AssetFlow AI</span>
+            <Link href="/dashboard" className="group overflow-hidden whitespace-nowrap">
+              <Logo textClassName="text-lg font-bold" iconClassName="w-5 h-5" />
             </Link>
           )}
           {isCollapsed && (
-            <Link href="/dashboard" className="mx-auto text-[var(--primary)] font-bold text-lg">
-              <Shield className="w-5 h-5" />
+            <Link href="/dashboard" className="mx-auto block group" title="AssetFlow AI">
+              <Logo mode="icon" iconClassName="w-5 h-5" />
             </Link>
           )}
           <button
