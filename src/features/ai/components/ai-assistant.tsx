@@ -3,8 +3,9 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, isTextUIPart, type UIMessage } from "ai";
 import { useState, useRef, useEffect } from "react";
-import { Bot, Send, X, MessageSquare, Loader2, Sparkles } from "lucide-react";
+import { Bot, Send, X, MessageSquare, Loader2, Sparkles, Copy, Check, Share2, RotateCw, MoreHorizontal, Volume2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const chatTransport = new DefaultChatTransport({ api: "/api/ai/chat" });
 
@@ -23,6 +24,75 @@ export function AIAssistant() {
     sendMessage?.({ text: localInput });
     setLocalInput("");
   };
+
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    toast.success("Copied to clipboard!");
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleShare = (text: string) => {
+    if (navigator.share) {
+      navigator.share({
+        title: "AssetFlow AI Response",
+        text: text,
+      }).catch((err) => console.log(err));
+    } else {
+      navigator.clipboard.writeText(text);
+      toast.success("Response copied to clipboard for sharing!");
+    }
+  };
+
+  const handleRegenerate = () => {
+    const userMsgs = messages.filter((m: any) => m.role === "user");
+    if (userMsgs.length === 0) return;
+    const lastUserMsg = userMsgs[userMsgs.length - 1] as any;
+    const textContent = lastUserMsg.parts?.filter((p: any) => isTextUIPart(p)).map((p: any) => p.text).join('') || lastUserMsg.content || '';
+    if (textContent) {
+      sendMessage?.({ text: textContent });
+    }
+  };
+
+  const handleSpeak = (text: string) => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(utterance);
+    } else {
+      toast.error("Text-to-speech not supported.");
+    }
+  };
+
+  const handleDownloadMarkdown = (text: string, id: string) => {
+    const blob = new Blob([text], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `response-${id.substring(0, 8)}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Markdown exported!");
+  };
+
+  const toggleMenu = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setActiveMenuId(prev => prev === id ? null : id);
+  };
+
+  useEffect(() => {
+    if (!activeMenuId) return;
+    const handleDocumentClick = () => {
+      setActiveMenuId(null);
+    };
+    document.addEventListener("click", handleDocumentClick);
+    return () => document.removeEventListener("click", handleDocumentClick);
+  }, [activeMenuId]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -74,12 +144,12 @@ export function AIAssistant() {
               </p>
             </div>
           ) : (
-            messages.map((m) => (
+            messages.map((m: any) => (
               <div
                 key={m.id}
-                className={`flex ${
-                  m.role === "user" ? "justify-end" : "justify-start"
-                }`}
+                className={`flex flex-col ${
+                  m.role === "user" ? "items-end" : "items-start"
+                } space-y-1`}
               >
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
@@ -88,8 +158,69 @@ export function AIAssistant() {
                       : "bg-[var(--background)] border border-[var(--border)] text-[var(--text-primary)] rounded-bl-sm"
                   }`}
                 >
-                  {(m.parts?.filter(p => isTextUIPart(p)).map(p => p.text).join('') || '')}
+                  {m.content || (m.parts?.filter((p: any) => isTextUIPart(p)).map((p: any) => p.text).join('') || '')}
                 </div>
+
+                {m.role !== "user" && (
+                  <div className="flex items-center gap-1 px-1 text-[var(--text-muted)] relative">
+                    <button
+                      onClick={() => handleCopy(m.content || m.parts?.filter((p: any) => isTextUIPart(p)).map((p: any) => p.text).join('') || '', m.id)}
+                      className="p-1 hover:text-[var(--text-primary)] hover:bg-[var(--background)] rounded transition-colors"
+                      title="Copy response"
+                    >
+                      {copiedId === m.id ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+                    </button>
+                    
+                    <button
+                      onClick={() => handleShare(m.content || m.parts?.filter((p: any) => isTextUIPart(p)).map((p: any) => p.text).join('') || '')}
+                      className="p-1 hover:text-[var(--text-primary)] hover:bg-[var(--background)] rounded transition-colors"
+                      title="Share response"
+                    >
+                      <Share2 size={12} />
+                    </button>
+
+                    <button
+                      onClick={handleRegenerate}
+                      className="p-1 hover:text-[var(--text-primary)] hover:bg-[var(--background)] rounded transition-colors"
+                      title="Regenerate response"
+                    >
+                      <RotateCw size={12} />
+                    </button>
+
+                    <button
+                      onClick={(e) => toggleMenu(e, m.id)}
+                      className="p-1 hover:text-[var(--text-primary)] hover:bg-[var(--background)] rounded transition-colors"
+                      title="More actions"
+                    >
+                      <MoreHorizontal size={12} />
+                    </button>
+
+                    {activeMenuId === m.id && (
+                      <div className="absolute left-20 bottom-6 bg-[var(--surface-elevated)] border border-[var(--border)] rounded-lg shadow-lg py-1 z-10 w-28 text-xs text-[var(--text-primary)]">
+                        <button
+                          onClick={() => {
+                            handleSpeak(m.content || m.parts?.filter((p: any) => isTextUIPart(p)).map((p: any) => p.text).join('') || '');
+                            setActiveMenuId(null);
+                          }}
+                          className="w-full text-left px-3 py-1.5 hover:bg-[var(--background)] flex items-center gap-2"
+                        >
+                          <Volume2 size={12} className="text-purple-500" />
+                          Speak
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleDownloadMarkdown(m.content || m.parts?.filter((p: any) => isTextUIPart(p)).map((p: any) => p.text).join('') || '', m.id);
+                            setActiveMenuId(null);
+                          }}
+                          className="w-full text-left px-3 py-1.5 hover:bg-[var(--background)] flex items-center gap-2"
+                        >
+                          <Download size={12} className="text-sky-500" />
+                          Export .md
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))
           )}
