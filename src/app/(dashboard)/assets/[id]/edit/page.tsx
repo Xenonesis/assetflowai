@@ -1,5 +1,6 @@
 import { getAsset } from "@/features/assets/actions/asset-actions";
 import { AssetForm } from "@/features/assets/components/asset-form";
+import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,10 @@ export default async function EditAssetPage({ params }: { params: Promise<{ id: 
     );
   }
 
+  const supabase = await createClient();
+  const { data: departments } = await supabase.from("departments").select("id, name").order("name", { ascending: true });
+  const { data: categories } = await supabase.from("categories").select("id, name").order("name", { ascending: true });
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-2 text-sm text-[var(--text-muted)] mb-4">
@@ -38,7 +43,7 @@ export default async function EditAssetPage({ params }: { params: Promise<{ id: 
         <span className="text-[var(--text-primary)]">Edit</span>
       </div>
 
-      <AssetForm initialData={asset} />
+      <AssetForm initialData={asset} departments={departments || []} categories={categories || []} />
     </div>
   );
 }

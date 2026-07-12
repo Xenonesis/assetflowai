@@ -31,17 +31,17 @@ export async function createTransfer(values: { asset_id: string; to_user_id: str
   if (!user) return { error: "Not authenticated" };
 
   // 1. Get asset details to find current holder
-  const { data: asset, error: assetError } = await supabase
+  const { data: asset, error: assetError } = (await supabase
     .from("assets")
     .select("current_holder_id")
     .eq("id", values.asset_id)
-    .single();
+    .single()) as unknown as { data: { current_holder_id: string | null } | null; error: any };
 
   if (assetError) return { error: assetError.message };
-  if (!asset.current_holder_id) return { error: "This asset is not allocated to anyone, cannot transfer." };
+  if (!asset || !asset.current_holder_id) return { error: "This asset is not allocated to anyone, cannot transfer." };
 
   // 2. Create transfer record
-  const { data: transfer, error: transferError } = await supabase
+  const { data: transfer, error: transferError } = (await supabase
     .from("transfers")
     .insert([{
       asset_id: values.asset_id,
@@ -52,7 +52,7 @@ export async function createTransfer(values: { asset_id: string; to_user_id: str
       remarks: values.remarks || null
     }])
     .select()
-    .single();
+    .single()) as unknown as { data: { id: string } | null; error: any };
 
   if (transferError) return { error: transferError.message };
 

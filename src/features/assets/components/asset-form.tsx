@@ -113,26 +113,44 @@ export function AssetForm({
           </div>
           
           <div className="space-y-2">
-             <Label htmlFor="department_id" className="text-[var(--text-primary)]">Department (UUID for MVP)</Label>
-             <Input
+             <Label htmlFor="department_id" className="text-[var(--text-primary)]">Department</Label>
+             <select
                id="department_id"
-               placeholder="Department UUID"
                {...form.register("department_id")}
-               className="border-[var(--border)] focus:ring-[var(--primary)]"
-             />
+               className="w-full h-10 px-3 bg-[var(--background)] border border-[var(--border)] rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] text-[var(--text-primary)]"
+             >
+               {departments.length === 0 ? (
+                 <option value="">No departments available</option>
+               ) : (
+                 departments.map((dept) => (
+                   <option key={dept.id} value={dept.id}>
+                     {dept.name}
+                   </option>
+                 ))
+               )}
+             </select>
              {form.formState.errors.department_id && (
                <p className="text-sm text-[var(--danger)]">{form.formState.errors.department_id.message}</p>
              )}
           </div>
           
           <div className="space-y-2">
-             <Label htmlFor="category_id" className="text-[var(--text-primary)]">Category (UUID for MVP)</Label>
-             <Input
+             <Label htmlFor="category_id" className="text-[var(--text-primary)]">Category</Label>
+             <select
                id="category_id"
-               placeholder="Category UUID"
                {...form.register("category_id")}
-               className="border-[var(--border)] focus:ring-[var(--primary)]"
-             />
+               className="w-full h-10 px-3 bg-[var(--background)] border border-[var(--border)] rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] text-[var(--text-primary)]"
+             >
+               {categories.length === 0 ? (
+                 <option value="">No categories available</option>
+               ) : (
+                 categories.map((cat) => (
+                   <option key={cat.id} value={cat.id}>
+                     {cat.name}
+                   </option>
+                 ))
+               )}
+             </select>
              {form.formState.errors.category_id && (
                <p className="text-sm text-[var(--danger)]">{form.formState.errors.category_id.message}</p>
              )}

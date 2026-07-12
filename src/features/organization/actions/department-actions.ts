@@ -27,17 +27,30 @@ export async function createDepartment(values: DepartmentValues) {
   return { data };
 }
 
+export interface Department {
+  id: string;
+  name: string;
+  code: string;
+  description?: string | null;
+  head_id?: string | null;
+  parent_id?: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  head?: { full_name: string } | null;
+}
+
 export async function getDepartments() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  const { data, error } = (await supabase
     .from("departments")
     .select("*, head:profiles(full_name)")
-    .order("name");
+    .order("name")) as unknown as { data: Department[] | null; error: any };
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data as any[];
+  return data || [];
 }
