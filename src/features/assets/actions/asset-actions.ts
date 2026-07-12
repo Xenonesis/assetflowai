@@ -5,16 +5,28 @@ import { revalidatePath } from "next/cache";
 import { AssetValues, AllocationValues } from "../validators/asset-schemas";
 import { Asset } from "../types";
 
+function sanitizeAssetValues(values: Partial<AssetValues>) {
+  const sanitized = { ...values };
+  if (sanitized.purchase_date === "") sanitized.purchase_date = null as any;
+  if (sanitized.warranty_expiry === "") sanitized.warranty_expiry = null as any;
+  if (sanitized.serial_number === "") sanitized.serial_number = null as any;
+  if (sanitized.location === "") sanitized.location = null as any;
+  if (sanitized.notes === "") sanitized.notes = null as any;
+  return sanitized;
+}
+
 export async function createAsset(values: AssetValues) {
   const supabase = await createClient();
   
   // Need to get current user to set created_by
   const { data: { user } } = await supabase.auth.getUser();
 
+  const sanitizedValues = sanitizeAssetValues(values);
+
   const { data, error } = await supabase
     .from("assets")
     .insert([{
-      ...values,
+      ...sanitizedValues,
       created_by: user?.id,
     }])
     .select()
@@ -67,10 +79,15 @@ export async function allocateAsset(values: AllocationValues) {
   if (!user) return { error: "Not authenticated" };
 
   // 1. Create allocation record
+  const sanitizedValues = {
+    ...values,
+    expected_return: values.expected_return === "" ? null : values.expected_return,
+  };
+
   const { data: allocation, error: allocError } = await supabase
     .from("allocations")
     .insert([{
-      ...values,
+      ...sanitizedValues,
       allocated_by: user.id,
     }])
     .select()
@@ -128,9 +145,11 @@ export async function updateAsset(id: string, values: Partial<AssetValues>) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  const sanitizedValues = sanitizeAssetValues(values);
+
   const { data, error } = await supabase
     .from("assets")
-    .update(values)
+    .update(sanitizedValues)
     .eq("id", id)
     .select()
     .single();
