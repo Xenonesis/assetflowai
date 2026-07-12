@@ -1,0 +1,104 @@
+"use server";
+
+import { createClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
+import { AssetValues, AllocationValues } from "../validators/asset-schemas";
+
+export async function createAsset(values: AssetValues) {
+  const supabase = await createClient();
+  
+  // Need to get current user to set created_by
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { data, error } = await supabase
+    .from("assets")
+    .insert([{
+      ...values,
+      created_by: user?.id,
+    }])
+    .select()
+    .single();
+
+  if (error) {
+    return { error: error.message };
+  }
+  
+  // Log activity
+  if (user && data) {
+    await supabase.from("activity_logs").insert([{
+      user_id: user.id,
+      action: "CREATED",
+      entity_type: "asset",
+      entity_id: (data as any).id,
+      metadata: { name: (data as any).name, asset_tag: (data as any).asset_tag }
+    }]);
+  }
+
+  revalidatePath("/assets");
+  return { data };
+}
+
+export async function getAssets() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("assets")
+    .select(`
+      *,
+      department:departments(name),
+      category:categories(name),
+      holder:profiles!current_holder_id(full_name)
+    `)
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as any[];
+}
+
+export async function allocateAsset(values: AllocationValues) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) return { error: "Not authenticated" };
+
+  // 1. Create allocation record
+  const { data: allocation, error: allocError } = await supabase
+    .from("allocations")
+    .insert([{
+      ...values,
+      allocated_by: user.id,
+    }])
+    .select()
+    .single();
+
+  if (allocError) return { error: allocError.message };
+
+  // 2. Update asset status and holder
+  const { error: updateError } = await supabase
+    .from("assets")
+    .update({ 
+      status: "allocated", 
+      current_holder_id: values.allocated_to,
+      condition: values.condition_on_allocation
+    })
+    .eq("id", values.asset_id);
+
+  if (updateError) return { error: updateError.message };
+  
+  // 3. Log activity
+  await supabase.from("activity_logs").insert([{
+    user_id: user.id,
+    action: "ALLOCATED",
+    entity_type: "asset",
+    entity_id: values.asset_id,
+    metadata: { allocated_to: values.allocated_to }
+  }]);
+
+  revalidatePath("/assets");
+  revalidatePath(`/assets/${values.asset_id}`);
+  return { data: allocation };
+}
