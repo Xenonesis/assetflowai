@@ -16,9 +16,10 @@ export function NotificationList({ initialNotifications = [] }: { initialNotific
   useEffect(() => {
     const supabase = createClient();
     let channel: any = null;
+    let isMounted = true;
 
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return;
+      if (!user || !isMounted) return;
 
       channel = supabase
         .channel(`realtime-notifications-page-${user.id}-${Math.random().toString(36).substring(7)}`)
@@ -38,6 +39,7 @@ export function NotificationList({ initialNotifications = [] }: { initialNotific
     });
 
     return () => {
+      isMounted = false;
       if (channel) {
         supabase.removeChannel(channel);
       }

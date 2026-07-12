@@ -33,9 +33,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     const supabase = createClient();
     let channel: any = null;
+    let isMounted = true;
 
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return;
+      if (!user || !isMounted) return;
 
       channel = supabase
         .channel(`realtime-notifications-${user.id}`)
@@ -61,6 +62,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     });
 
     return () => {
+      isMounted = false;
       if (channel) {
         supabase.removeChannel(channel);
       }
