@@ -44,3 +44,14 @@ INSERT INTO allocations (asset_id, allocated_to, allocated_by, expected_return) 
 -- 6. Maintenance Requests
 INSERT INTO maintenance_requests (asset_id, requested_by, description, priority, status) VALUES
 ('45678901-4567-4567-4567-456789012345', '00000000-0000-0000-0000-000000000004', 'Screen cracked, needs replacement', 'high', 'approved');
+
+-- 7. Activity Logs
+INSERT INTO activity_logs (user_id, action, entity_type, entity_id, metadata) VALUES
+('00000000-0000-0000-0000-000000000001', 'CREATED', 'department', '11111111-1111-1111-1111-111111111111', '{"name": "Information Technology", "code": "IT"}'),
+('00000000-0000-0000-0000-000000000001', 'CREATED', 'category', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '{"name": "Laptops"}'),
+('00000000-0000-0000-0000-000000000001', 'CREATED', 'asset', '12345678-1234-1234-1234-123456789012', '{"name": "MacBook Pro 16\" M3 Max", "asset_tag": "AF-LT-001"}'),
+('00000000-0000-0000-0000-000000000002', 'ALLOCATED', 'asset', '12345678-1234-1234-1234-123456789012', '{"allocated_to": "00000000-0000-0000-0000-000000000004"}'),
+('00000000-0000-0000-0000-000000000004', 'REQUESTED', 'maintenance', '45678901-4567-4567-4567-456789012345', '{"priority": "high", "description": "Screen cracked"}'),
+('00000000-0000-0000-0000-000000000003', 'BOOKED', 'booking', '12345678-1234-1234-1234-123456789012', '{"asset": "AF-LT-001", "start": "2026-07-15T09:00:00Z", "end": "2026-07-15T17:00:00Z"}'),
+('00000000-0000-0000-0000-000000000002', 'APPROVED', 'maintenance', '45678901-4567-4567-4567-456789012345', '{"priority": "high", "status": "approved"}'),
+('00000000-0000-0000-0000-000000000003', 'RETURNED', 'asset', '34567890-3456-3456-3456-345678901234', '{"asset_tag": "AF-MN-001", "condition": "good"}');

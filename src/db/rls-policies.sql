@@ -130,8 +130,9 @@ CREATE POLICY "Users can manage own notifications" ON notifications
   FOR ALL USING (user_id = auth.uid());
 
 -- Activity Logs Policies
-CREATE POLICY "Admins can view all logs" ON activity_logs
-  FOR SELECT USING (get_user_role(auth.uid()) = 'admin');
+-- All authenticated users can view activity logs for visibility
+CREATE POLICY "Users can view all logs" ON activity_logs
+  FOR SELECT USING (auth.role() = 'authenticated');
 
 -- AI Conversations Policies
 CREATE POLICY "Users can manage own AI conversations" ON ai_conversations
