@@ -1,47 +1,108 @@
-import { ReactNode } from "react";
-import Link from "next/link";
-import { Shield, LayoutDashboard, Users, Box, Wrench, Calendar, ClipboardCheck, Settings, Bell, Search, LogOut, ArrowLeftRight, BarChart3, History, Building2 } from "lucide-react";
-import { AIAssistant } from "@/features/ai/components/ai-assistant";
+"use client";
 
+import { ReactNode, useState } from "react";
+import Link from "next/link";
+import { Shield, LayoutDashboard, Users, Box, Wrench, Calendar, ClipboardCheck, Settings, Bell, Search, LogOut, ArrowLeftRight, BarChart3, History, Building2, Menu, X, ChevronLeft } from "lucide-react";
+import { AIAssistant } from "@/features/ai/components/ai-assistant";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  const navItems = (isCol: boolean) => (
+    <>
+      <div className={`text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 px-3 mt-4 transition-opacity duration-200 ${isCol ? "opacity-0 h-0 overflow-hidden mt-0" : "opacity-100"}`}>Overview</div>
+      <NavLink href="/dashboard" icon={<LayoutDashboard size={18} />} isCollapsed={isCol}>Dashboard</NavLink>
+      
+      <div className={`text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 px-3 mt-6 transition-opacity duration-200 ${isCol ? "opacity-0 h-0 overflow-hidden mt-0" : "opacity-100"}`}>Core</div>
+      <NavLink href="/assets" icon={<Box size={18} />} isCollapsed={isCol}>Assets</NavLink>
+      <NavLink href="/allocations" icon={<Users size={18} />} isCollapsed={isCol}>Allocations</NavLink>
+      <NavLink href="/transfers" icon={<ArrowLeftRight size={18} />} isCollapsed={isCol}>Transfers</NavLink>
+      
+      <div className={`text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 px-3 mt-6 transition-opacity duration-200 ${isCol ? "opacity-0 h-0 overflow-hidden mt-0" : "opacity-100"}`}>Workflows</div>
+      <NavLink href="/maintenance" icon={<Wrench size={18} />} isCollapsed={isCol}>Maintenance</NavLink>
+      <NavLink href="/bookings" icon={<Calendar size={18} />} isCollapsed={isCol}>Bookings</NavLink>
+      <NavLink href="/audits" icon={<ClipboardCheck size={18} />} isCollapsed={isCol}>Audits</NavLink>
+      
+      <div className={`text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 px-3 mt-6 transition-opacity duration-200 ${isCol ? "opacity-0 h-0 overflow-hidden mt-0" : "opacity-100"}`}>Administration</div>
+      <NavLink href="/organization" icon={<Building2 size={18} />} isCollapsed={isCol}>Organization</NavLink>
+      <NavLink href="/reports" icon={<BarChart3 size={18} />} isCollapsed={isCol}>Reports</NavLink>
+      <NavLink href="/activity" icon={<History size={18} />} isCollapsed={isCol}>Activity Logs</NavLink>
+      <NavLink href="/settings" icon={<Settings size={18} />} isCollapsed={isCol}>Settings</NavLink>
+    </>
+  );
+
   return (
     <div className="min-h-screen bg-[var(--background)] flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-[var(--surface-elevated)] border-r border-[var(--border)] hidden md:flex flex-col">
-        <div className="h-16 flex items-center px-6 border-b border-[var(--border)]">
-          <Link href="/dashboard" className="flex items-center gap-2 text-[var(--primary)] font-bold text-lg">
-            <Shield className="w-5 h-5" />
-            <span>AssetFlow AI</span>
-          </Link>
+      {/* Mobile Sidebar Overlay */}
+      {isMobileOpen && (
+        <>
+          <div 
+            className="fixed inset-0 z-40 bg-black/60 md:hidden"
+            onClick={() => setIsMobileOpen(false)}
+          />
+          <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-[var(--surface-elevated)] border-r border-[var(--border)] flex flex-col md:hidden animate-in slide-in-from-left duration-200">
+            <div className="h-16 flex items-center justify-between px-6 border-b border-[var(--border)]">
+              <Link href="/dashboard" className="flex items-center gap-2 text-[var(--primary)] font-bold text-lg" onClick={() => setIsMobileOpen(false)}>
+                <Shield className="w-5 h-5" />
+                <span>AssetFlow AI</span>
+              </Link>
+              <button
+                onClick={() => setIsMobileOpen(false)}
+                className="p-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)] rounded-md"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1" onClick={() => setIsMobileOpen(false)}>
+              {navItems(false)}
+            </nav>
+            
+            <div className="p-4 border-t border-[var(--border)]">
+              <button className="flex items-center gap-3 w-full px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 rounded-md transition-colors">
+                <LogOut size={18} />
+                <span>Sign out</span>
+              </button>
+            </div>
+          </aside>
+        </>
+      )}
+
+      {/* Desktop Sidebar */}
+      <aside className={`bg-[var(--surface-elevated)] border-r border-[var(--border)] hidden md:flex flex-col transition-all duration-300 ease-in-out shrink-0 ${isCollapsed ? "w-16" : "w-64"}`}>
+        <div className="h-16 flex items-center justify-between px-4 border-b border-[var(--border)]">
+          {!isCollapsed && (
+            <Link href="/dashboard" className="flex items-center gap-2 text-[var(--primary)] font-bold text-lg overflow-hidden whitespace-nowrap">
+              <Shield className="w-5 h-5 shrink-0" />
+              <span>AssetFlow AI</span>
+            </Link>
+          )}
+          {isCollapsed && (
+            <Link href="/dashboard" className="mx-auto text-[var(--primary)] font-bold text-lg">
+              <Shield className="w-5 h-5" />
+            </Link>
+          )}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)] rounded-md hidden md:block"
+          >
+            <ChevronLeft size={18} className={`transition-transform duration-200 ${isCollapsed ? "rotate-180" : ""}`} />
+          </button>
         </div>
         
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-          <div className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 px-3 mt-4">Overview</div>
-          <NavLink href="/dashboard" icon={<LayoutDashboard size={18} />}>Dashboard</NavLink>
-          
-          <div className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 px-3 mt-6">Core</div>
-          <NavLink href="/assets" icon={<Box size={18} />}>Assets</NavLink>
-          <NavLink href="/allocations" icon={<Users size={18} />}>Allocations</NavLink>
-          <NavLink href="/transfers" icon={<ArrowLeftRight size={18} />}>Transfers</NavLink>
-          
-          <div className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 px-3 mt-6">Workflows</div>
-          <NavLink href="/maintenance" icon={<Wrench size={18} />}>Maintenance</NavLink>
-          <NavLink href="/bookings" icon={<Calendar size={18} />}>Bookings</NavLink>
-          <NavLink href="/audits" icon={<ClipboardCheck size={18} />}>Audits</NavLink>
-          
-          <div className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 px-3 mt-6">Administration</div>
-          <NavLink href="/organization" icon={<Building2 size={18} />}>Organization</NavLink>
-          <NavLink href="/reports" icon={<BarChart3 size={18} />}>Reports</NavLink>
-          <NavLink href="/activity" icon={<History size={18} />}>Activity Logs</NavLink>
-          <NavLink href="/settings" icon={<Settings size={18} />}>Settings</NavLink>
+          {navItems(isCollapsed)}
         </nav>
         
         <div className="p-4 border-t border-[var(--border)]">
-          <button className="flex items-center gap-3 w-full px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 rounded-md transition-colors">
+          <button 
+            className={`flex items-center text-sm text-[var(--text-secondary)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 rounded-md transition-colors py-2 ${isCollapsed ? "justify-center w-full px-0" : "w-full px-3 gap-3"}`}
+            title={isCollapsed ? "Sign out" : undefined}
+          >
             <LogOut size={18} />
-            <span>Sign out</span>
+            <span className={`transition-all duration-200 ${isCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}>Sign out</span>
           </button>
         </div>
       </aside>
@@ -51,7 +112,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         {/* Top Navbar */}
         <header className="h-16 bg-[var(--surface)] border-b border-[var(--border)] flex items-center justify-between px-6 sticky top-0 z-10">
           <div className="flex items-center gap-4 flex-1">
-            {/* Mobile menu button could go here */}
+            {/* Mobile menu button */}
+            <button 
+              onClick={() => setIsMobileOpen(true)}
+              className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] rounded-md md:hidden"
+            >
+              <Menu size={20} />
+            </button>
             
             {/* Global Search */}
             <div className="relative max-w-md w-full hidden sm:block">
@@ -90,14 +157,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   );
 }
 
-function NavLink({ href, icon, children }: { href: string; icon: ReactNode; children: ReactNode }) {
+function NavLink({ href, icon, children, isCollapsed = false }: { href: string; icon: ReactNode; children: ReactNode; isCollapsed?: boolean }) {
   return (
     <Link 
       href={href}
-      className="flex items-center gap-3 px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)] rounded-md transition-colors"
+      className={`flex items-center text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)] rounded-md transition-colors py-2 ${isCollapsed ? "justify-center gap-0 px-0" : "px-3 gap-3"}`}
+      title={isCollapsed ? String(children) : undefined}
     >
       {icon}
-      <span>{children}</span>
+      <span className={`transition-all duration-200 ${isCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}`}>
+        {children}
+      </span>
     </Link>
   );
 }
