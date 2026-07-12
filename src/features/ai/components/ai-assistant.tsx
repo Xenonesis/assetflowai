@@ -1,24 +1,26 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport, isTextUIPart, type UIMessage } from "ai";
 import { useState, useRef, useEffect } from "react";
 import { Bot, Send, X, MessageSquare, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+const chatTransport = new DefaultChatTransport({ api: "/api/ai/chat" });
+
 export function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [localInput, setLocalInput] = useState("");
-  const { messages, append, isLoading } = useChat({
-    api: "/api/ai/chat",
-  } as any) as any;
+  const { messages, sendMessage, status } = useChat({
+    transport: chatTransport,
+  });
+  const isLoading = status === 'submitted' || status === 'streaming';
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!localInput.trim() || isLoading) return;
-    if (append) {
-      append({ role: "user", content: localInput });
-    }
+    sendMessage?.({ text: localInput });
     setLocalInput("");
   };
 
@@ -72,7 +74,7 @@ export function AIAssistant() {
               </p>
             </div>
           ) : (
-            messages.map((m: any) => (
+            messages.map((m) => (
               <div
                 key={m.id}
                 className={`flex ${
@@ -86,7 +88,7 @@ export function AIAssistant() {
                       : "bg-[var(--background)] border border-[var(--border)] text-[var(--text-primary)] rounded-bl-sm"
                   }`}
                 >
-                  {m.content}
+                  {(m.parts?.filter(p => isTextUIPart(p)).map(p => p.text).join('') || '')}
                 </div>
               </div>
             ))
