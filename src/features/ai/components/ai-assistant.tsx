@@ -7,10 +7,20 @@ import { Button } from "@/components/ui/button";
 
 export function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const [localInput, setLocalInput] = useState("");
+  const { messages, append, isLoading } = useChat({
     api: "/api/ai/chat",
   } as any) as any;
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!localInput.trim() || isLoading) return;
+    if (append) {
+      append({ role: "user", content: localInput });
+    }
+    setLocalInput("");
+  };
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -94,20 +104,20 @@ export function AIAssistant() {
         {/* Input */}
         <div className="p-4 border-t border-[var(--border)] bg-[var(--surface-elevated)]">
           <form
-            onSubmit={handleSubmit}
+            onSubmit={handleFormSubmit}
             className="flex items-center gap-2 bg-[var(--background)] border border-[var(--border)] rounded-full pl-4 pr-1.5 py-1.5 focus-within:ring-1 focus-within:ring-[var(--primary)] transition-all"
           >
             <input
               type="text"
-              value={input || ""}
-              onChange={handleInputChange}
+              value={localInput}
+              onChange={(e) => setLocalInput(e.target.value)}
               placeholder="Ask anything..."
               className="flex-1 bg-transparent text-sm focus:outline-none text-[var(--text-primary)] placeholder-[var(--text-muted)]"
             />
             <Button
               type="submit"
               size="icon"
-              disabled={isLoading || !(input || "").trim()}
+              disabled={isLoading || !localInput.trim()}
               className="w-8 h-8 rounded-full bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] shrink-0 disabled:opacity-50"
             >
               <Send className="w-4 h-4 ml-0.5" />
