@@ -11,14 +11,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle } from "lucide-react";
 
-export function BookingForm() {
+export function BookingForm({ assets = [] }: { assets?: any[] }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   
   const form = useForm<BookingValues>({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
-      asset_id: "",
+      asset_id: assets[0]?.id || "",
       start_time: "",
       end_time: "",
       purpose: "",
@@ -55,13 +55,22 @@ export function BookingForm() {
         
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="asset_id" className="text-[var(--text-primary)]">Resource (Asset UUID for MVP)</Label>
-            <Input
+            <Label htmlFor="asset_id" className="text-[var(--text-primary)]">Resource / Asset</Label>
+            <select
               id="asset_id"
-              placeholder="UUID of the resource"
               {...form.register("asset_id")}
-              className="border-[var(--border)] focus:ring-[var(--primary)]"
-            />
+              className="w-full h-10 px-3 bg-[var(--background)] border border-[var(--border)] rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] text-[var(--text-primary)]"
+            >
+              {assets.length === 0 ? (
+                <option value="">No assets available</option>
+              ) : (
+                assets.map((asset) => (
+                  <option key={asset.id} value={asset.id}>
+                    {asset.name} ({asset.asset_tag})
+                  </option>
+                ))
+              )}
+            </select>
             {form.formState.errors.asset_id && (
               <p className="text-sm text-[var(--danger)]">{form.formState.errors.asset_id.message}</p>
             )}

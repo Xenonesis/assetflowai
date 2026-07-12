@@ -5,20 +5,33 @@ import Link from "next/link";
 export default async function NewTransferPage() {
   const supabase = await createClient();
 
+  interface AllocatedAsset {
+    id: string;
+    name: string;
+    asset_tag: string;
+    holder?: { full_name: string } | null;
+  }
+
   // Fetch allocated assets
-  const { data: assets } = await supabase
+  const { data: assets } = (await supabase
     .from("assets")
     .select("id, name, asset_tag, holder:profiles!current_holder_id(full_name)")
     .eq("status", "allocated")
     .is("deleted_at", null)
-    .order("name", { ascending: true });
+    .order("name", { ascending: true })) as unknown as { data: AllocatedAsset[] | null };
+
+  interface ActiveProfile {
+    id: string;
+    full_name: string;
+    email: string;
+  }
 
   // Fetch active profiles
-  const { data: profiles } = await supabase
+  const { data: profiles } = (await supabase
     .from("profiles")
     .select("id, full_name, email")
     .eq("is_active", true)
-    .order("full_name", { ascending: true });
+    .order("full_name", { ascending: true })) as unknown as { data: ActiveProfile[] | null };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

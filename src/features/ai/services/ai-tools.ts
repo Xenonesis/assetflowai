@@ -2,6 +2,20 @@ import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 import { tool } from "ai";
 
+interface SearchAssetResult {
+  id: string;
+  name: string;
+  asset_tag: string;
+  status: string;
+  current_holder_id: string | null;
+}
+
+interface AssetStatusResult {
+  name: string;
+  status: string;
+  holder?: { full_name: string } | null;
+}
+
 // These tools will be passed to the AI model
 export const aiTools = {
   searchAssets: tool({
@@ -11,14 +25,14 @@ export const aiTools = {
     }),
     execute: async ({ query }: { query: string }) => {
       const supabase = await createClient();
-      const { data, error } = await supabase
+      const { data, error } = (await supabase
         .from("assets")
         .select("id, name, asset_tag, status, current_holder_id")
         .or(`name.ilike.%${query}%,asset_tag.ilike.%${query}%`)
-        .limit(5);
+        .limit(5)) as unknown as { data: SearchAssetResult[] | null; error: any };
 
       if (error) throw new Error(error.message);
-      return data as any;
+      return data || [];
     },
   }),
   
@@ -29,7 +43,7 @@ export const aiTools = {
     }),
     execute: async ({ asset_tag }: { asset_tag: string }) => {
       const supabase = await createClient();
-      const { data, error } = await supabase
+      const { data, error } = (await supabase
         .from("assets")
         .select(`
           name, 
@@ -37,10 +51,10 @@ export const aiTools = {
           holder:profiles!current_holder_id(full_name)
         `)
         .eq("asset_tag", asset_tag)
-        .single();
+        .single()) as unknown as { data: AssetStatusResult | null; error: any };
 
       if (error) return { error: "Asset not found" };
-      return data as any;
+      return data;
     },
   }),
 };
