@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import Link from "next/link";
-import { Shield, LayoutDashboard, Users, Box, Wrench, Calendar, ClipboardCheck, Settings, Bell, Search, LogOut } from "lucide-react";
+import { Shield, LayoutDashboard, Users, Box, Wrench, Calendar, ClipboardCheck, Settings, Bell, Search, LogOut, ArrowLeftRight, BarChart3, History, Building2 } from "lucide-react";
 import { AIAssistant } from "@/features/ai/components/ai-assistant";
 
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -24,6 +24,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <div className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 px-3 mt-6">Core</div>
           <NavLink href="/assets" icon={<Box size={18} />}>Assets</NavLink>
           <NavLink href="/allocations" icon={<Users size={18} />}>Allocations</NavLink>
+          <NavLink href="/transfers" icon={<ArrowLeftRight size={18} />}>Transfers</NavLink>
           
           <div className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 px-3 mt-6">Workflows</div>
           <NavLink href="/maintenance" icon={<Wrench size={18} />}>Maintenance</NavLink>
@@ -31,7 +32,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <NavLink href="/audits" icon={<ClipboardCheck size={18} />}>Audits</NavLink>
           
           <div className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 px-3 mt-6">Administration</div>
-          <NavLink href="/organization" icon={<Settings size={18} />}>Organization</NavLink>
+          <NavLink href="/organization" icon={<Building2 size={18} />}>Organization</NavLink>
+          <NavLink href="/reports" icon={<BarChart3 size={18} />}>Reports</NavLink>
+          <NavLink href="/activity" icon={<History size={18} />}>Activity Logs</NavLink>
+          <NavLink href="/settings" icon={<Settings size={18} />}>Settings</NavLink>
         </nav>
         
         <div className="p-4 border-t border-[var(--border)]">
@@ -62,10 +66,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <button className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--background)] rounded-full transition-colors relative">
+            <Link 
+              href="/notifications"
+              className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--background)] rounded-full transition-colors relative"
+            >
               <Bell size={20} />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--danger)] rounded-full border border-[var(--surface)]"></span>
-            </button>
+            </Link>
             <div className="w-8 h-8 rounded-full bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] font-medium text-sm">
               JD
             </div>

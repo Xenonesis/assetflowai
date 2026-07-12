@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { assetSchema, AssetValues } from "../validators/asset-schemas";
-import { createAsset } from "../actions/asset-actions";
+import { createAsset, updateAsset } from "../actions/asset-actions";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -12,23 +12,42 @@ import { Label } from "@/components/ui/label";
 import { AlertCircle } from "lucide-react";
 
 // Note: In a full app, departments and categories would be fetched and passed as props for select fields
-export function AssetForm({ departments = [], categories = [] }: { departments?: any[], categories?: any[] }) {
+export function AssetForm({ 
+  departments = [], 
+  categories = [], 
+  initialData 
+}: { 
+  departments?: any[], 
+  categories?: any[], 
+  initialData?: any 
+}) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   
   const form = useForm<AssetValues>({
     resolver: zodResolver(assetSchema) as any,
     defaultValues: {
-      asset_tag: "",
-      name: "",
-      status: "available",
-      condition: "new",
+      asset_tag: initialData?.asset_tag || "",
+      name: initialData?.name || "",
+      serial_number: initialData?.serial_number || "",
+      category_id: initialData?.category_id || "",
+      department_id: initialData?.department_id || "",
+      status: initialData?.status || "available",
+      condition: initialData?.condition || "good",
+      purchase_date: initialData?.purchase_date || "",
+      purchase_cost: initialData?.purchase_cost || 0,
+      warranty_expiry: initialData?.warranty_expiry || "",
+      location: initialData?.location || "",
+      notes: initialData?.notes || "",
     },
   });
 
   async function onSubmit(values: AssetValues) {
     setError(null);
-    const result = await createAsset(values);
+    const result = initialData?.id 
+      ? await updateAsset(initialData.id, values)
+      : await createAsset(values);
+      
     if (result?.error) {
       setError(result.error);
     } else {
@@ -40,9 +59,11 @@ export function AssetForm({ departments = [], categories = [] }: { departments?:
   return (
     <div className="w-full max-w-2xl bg-[var(--surface)] border border-[var(--border)] rounded-lg p-6">
       <div className="space-y-2 mb-6">
-        <h2 className="text-xl font-semibold tracking-tight text-[var(--text-primary)]">Register Asset</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-[var(--text-primary)]">
+          {initialData?.id ? "Edit Asset" : "Register Asset"}
+        </h2>
         <p className="text-sm text-[var(--text-secondary)]">
-          Add a new physical asset to the inventory.
+          {initialData?.id ? "Modify the existing asset properties." : "Add a new physical asset to the inventory."}
         </p>
       </div>
       
@@ -132,7 +153,9 @@ export function AssetForm({ departments = [], categories = [] }: { departments?:
             className="bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] transition-colors"
             disabled={form.formState.isSubmitting}
           >
-            {form.formState.isSubmitting ? "Registering..." : "Register Asset"}
+            {form.formState.isSubmitting 
+              ? (initialData?.id ? "Saving..." : "Registering...") 
+              : (initialData?.id ? "Save Changes" : "Register Asset")}
           </Button>
         </div>
       </form>

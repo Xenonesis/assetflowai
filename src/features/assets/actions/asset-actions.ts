@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { AssetValues, AllocationValues } from "../validators/asset-schemas";
+import { Asset } from "../types";
 
 export async function createAsset(values: AssetValues) {
   const supabase = await createClient();
@@ -56,7 +57,7 @@ export async function getAssets() {
     throw new Error(error.message);
   }
 
-  return data as any[];
+  return data as unknown as Asset[];
 }
 
 export async function allocateAsset(values: AllocationValues) {
@@ -101,4 +102,54 @@ export async function allocateAsset(values: AllocationValues) {
   revalidatePath("/assets");
   revalidatePath(`/assets/${values.asset_id}`);
   return { data: allocation };
+}
+
+export async function getAsset(id: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("assets")
+    .select(`
+      *,
+      department:departments(id, name),
+      category:categories(id, name)
+    `)
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as unknown as Asset;
+}
+
+export async function updateAsset(id: string, values: Partial<AssetValues>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { data, error } = await supabase
+    .from("assets")
+    .update(values)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  if (user && data) {
+    await supabase.from("activity_logs").insert([{
+      user_id: user.id,
+      action: "UPDATED",
+      entity_type: "asset",
+      entity_id: id,
+      metadata: { name: (data as any).name }
+    }]);
+  }
+
+  revalidatePath("/assets");
+  revalidatePath(`/assets/${id}`);
+  return { data: data as unknown as Asset };
 }

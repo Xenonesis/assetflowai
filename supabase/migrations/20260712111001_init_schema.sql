@@ -17,7 +17,7 @@ CREATE TYPE audit_item_status AS ENUM ('pending', 'verified', 'missing', 'damage
 -- Tables
 
 CREATE TABLE departments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL UNIQUE,
     code VARCHAR(50) NOT NULL UNIQUE,
     description TEXT,
@@ -45,7 +45,7 @@ CREATE TABLE profiles (
 ALTER TABLE departments ADD CONSTRAINT fk_department_head FOREIGN KEY (head_id) REFERENCES profiles(id);
 
 CREATE TABLE categories (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
     icon VARCHAR(100),
@@ -55,7 +55,7 @@ CREATE TABLE categories (
 );
 
 CREATE TABLE assets (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     asset_tag VARCHAR(100) NOT NULL UNIQUE,
     name VARCHAR(255) NOT NULL,
     serial_number VARCHAR(255) UNIQUE,
@@ -78,7 +78,7 @@ CREATE TABLE assets (
 );
 
 CREATE TABLE allocations (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     asset_id UUID REFERENCES assets(id) NOT NULL,
     allocated_to UUID REFERENCES profiles(id) NOT NULL,
     allocated_by UUID REFERENCES profiles(id) NOT NULL,
@@ -92,7 +92,7 @@ CREATE TABLE allocations (
 );
 
 CREATE TABLE transfers (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     asset_id UUID REFERENCES assets(id) NOT NULL,
     from_user_id UUID REFERENCES profiles(id) NOT NULL,
     to_user_id UUID REFERENCES profiles(id) NOT NULL,
@@ -105,7 +105,7 @@ CREATE TABLE transfers (
 );
 
 CREATE TABLE bookings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     asset_id UUID REFERENCES assets(id) NOT NULL,
     booked_by UUID REFERENCES profiles(id) NOT NULL,
     start_time TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -117,7 +117,7 @@ CREATE TABLE bookings (
 );
 
 CREATE TABLE maintenance_requests (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     asset_id UUID REFERENCES assets(id) NOT NULL,
     requested_by UUID REFERENCES profiles(id) NOT NULL,
     priority maintenance_priority DEFAULT 'medium',
@@ -131,7 +131,7 @@ CREATE TABLE maintenance_requests (
 );
 
 CREATE TABLE audit_cycles (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     started_by UUID REFERENCES profiles(id) NOT NULL,
     start_date DATE NOT NULL,
@@ -142,7 +142,7 @@ CREATE TABLE audit_cycles (
 );
 
 CREATE TABLE audit_items (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     cycle_id UUID REFERENCES audit_cycles(id) NOT NULL,
     asset_id UUID REFERENCES assets(id) NOT NULL,
     verified_by UUID REFERENCES profiles(id),
@@ -154,7 +154,7 @@ CREATE TABLE audit_items (
 );
 
 CREATE TABLE notifications (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) NOT NULL,
     title VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
@@ -165,7 +165,7 @@ CREATE TABLE notifications (
 );
 
 CREATE TABLE activity_logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id),
     action VARCHAR(255) NOT NULL,
     entity_type VARCHAR(100) NOT NULL,
@@ -176,7 +176,7 @@ CREATE TABLE activity_logs (
 );
 
 CREATE TABLE ai_conversations (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) NOT NULL,
     messages JSONB NOT NULL DEFAULT '[]'::jsonb,
     model VARCHAR(100),
