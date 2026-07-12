@@ -16,6 +16,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ full_name: string; email: string } | null>(null);
 
   // 1. Listen for Ctrl + K to toggle command palette
   useEffect(() => {
@@ -29,7 +30,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // 2. Real-time Notifications Listener subscription
+  // 2. Real-time Notifications Listener & Profile Fetching
   useEffect(() => {
     const supabase = createClient();
     let channel: any = null;
@@ -37,6 +38,27 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user || !isMounted) return;
+
+      // Fetch user profile info
+      supabase
+        .from("profiles")
+        .select("full_name, email")
+        .eq("id", user.id)
+        .single()
+        .then(({ data: profile }) => {
+          if (!isMounted) return;
+          if (profile) {
+            setUserProfile({
+              full_name: (profile as any).full_name,
+              email: (profile as any).email,
+            });
+          } else {
+            setUserProfile({
+              full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || "User",
+              email: user.email || "",
+            });
+          }
+        });
 
       channel = supabase
         .channel(`realtime-notifications-${user.id}`)
@@ -91,6 +113,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <NavLink href="/settings" icon={<Settings size={18} />} isCollapsed={isCol}>Settings</NavLink>
     </>
   );
+
+  const getInitials = (name: string) => {
+    if (!name) return "U";
+    const parts = name.trim().split(" ");
+    if (parts.length >= 2) {
+      return `${parts[0].charAt(0)}${parts[1].charAt(0)}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
 
   return (
     <div className="min-h-screen bg-[var(--background)] flex">
@@ -199,9 +230,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               <Bell size={20} />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--danger)] rounded-full border border-[var(--surface)]"></span>
             </Link>
-            <div className="w-8 h-8 rounded-full bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] font-medium text-sm">
-              JD
-            </div>
+            <Link 
+              href="/profile"
+              title={userProfile ? `View Profile: ${userProfile.full_name} (${userProfile.email})` : "Loading profile..."}
+              className="w-8 h-8 rounded-full bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] font-semibold text-xs border border-[var(--primary)]/20 uppercase hover:bg-[var(--primary)]/20 transition-colors shrink-0"
+            >
+              {userProfile ? getInitials(userProfile.full_name) : "..."}
+            </Link>
           </div>
         </header>
 
