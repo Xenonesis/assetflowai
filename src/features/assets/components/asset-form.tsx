@@ -119,15 +119,12 @@ export function AssetForm({
                {...form.register("department_id")}
                className="w-full h-10 px-3 bg-[var(--background)] border border-[var(--border)] rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] text-[var(--text-primary)]"
              >
-               {departments.length === 0 ? (
-                 <option value="">No departments available</option>
-               ) : (
-                 departments.map((dept) => (
-                   <option key={dept.id} value={dept.id}>
-                     {dept.name}
-                   </option>
-                 ))
-               )}
+               <option value="">Select a department</option>
+               {departments.map((dept) => (
+                 <option key={dept.id} value={dept.id}>
+                   {dept.name}
+                 </option>
+               ))}
              </select>
              {form.formState.errors.department_id && (
                <p className="text-sm text-[var(--danger)]">{form.formState.errors.department_id.message}</p>
@@ -141,15 +138,12 @@ export function AssetForm({
                {...form.register("category_id")}
                className="w-full h-10 px-3 bg-[var(--background)] border border-[var(--border)] rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] text-[var(--text-primary)]"
              >
-               {categories.length === 0 ? (
-                 <option value="">No categories available</option>
-               ) : (
-                 categories.map((cat) => (
-                   <option key={cat.id} value={cat.id}>
-                     {cat.name}
-                   </option>
-                 ))
-               )}
+               <option value="">Select a category</option>
+               {categories.map((cat) => (
+                 <option key={cat.id} value={cat.id}>
+                   {cat.name}
+                 </option>
+               ))}
              </select>
              {form.formState.errors.category_id && (
                <p className="text-sm text-[var(--danger)]">{form.formState.errors.category_id.message}</p>
