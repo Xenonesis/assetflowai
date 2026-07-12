@@ -1,11 +1,5 @@
-import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { groq } from "@ai-sdk/groq";
 
-// This configures the OpenRouter provider to use the preferred model
-// Defaulting to Claude 3.5 Sonnet or a fast Gemini model depending on needs
-
-export const openrouter = createOpenRouter({
-  apiKey: process.env.OPENROUTER_API_KEY,
-});
-
-// Use a fast, capable model by default
-export const defaultModel = openrouter("anthropic/claude-3.5-sonnet");
+// This configures the Groq provider to use the preferred model.
+// Defaulting to Llama 3.3 70B Versatile for high-speed, accurate tool calling.
+export const defaultModel = groq("llama-3.3-70b-versatile");
