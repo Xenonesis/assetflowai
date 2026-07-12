@@ -15,12 +15,25 @@ export async function POST(req: Request) {
     return new Response('Unauthorized', { status: 401 });
   }
 
+  // Sanitize messages to match ModelMessage[] schema
+  const sanitizedMessages = (messages || []).map((m: any) => {
+    let content = m.content;
+    if (content === undefined && Array.isArray(m.parts)) {
+      const textPart = m.parts.find((p: any) => p.type === "text");
+      content = textPart ? textPart.text : "";
+    }
+    return {
+      role: m.role,
+      content: content || "",
+    };
+  });
+
   const result = streamText({
     model: defaultModel,
     system: SYSTEM_PROMPT,
-    messages,
+    messages: sanitizedMessages,
     tools: aiTools,
   });
 
-  return result.toUIMessageStreamResponse();
+  return result.toTextStreamResponse();
 }
