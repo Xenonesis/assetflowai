@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { ArrowLeft, Box, Calendar, Clock, Edit3, Settings, ShieldAlert, User, Wrench } from "lucide-react";
+import { ArrowLeft, Box, Calendar, Clock, Edit3, Settings, ShieldAlert, User, Wrench, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Asset } from "@/features/assets/types";
 
@@ -132,32 +132,65 @@ export default async function AssetDetailPage({ params }: { params: Promise<{ id
               <span className="text-xs text-[var(--text-secondary)] block">Asset Condition</span>
               <span className="font-semibold text-[var(--text-primary)] capitalize">{asset.condition}</span>
             </div>
+            {asset.photo && (
+              <div className="col-span-2 border-t border-[var(--border)] pt-4 mt-2">
+                <span className="text-xs text-[var(--text-secondary)] block mb-1">Attached Document / Receipt</span>
+                <a 
+                  href={asset.photo} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--primary)] hover:underline bg-[var(--primary)]/10 px-3 py-1.5 rounded-lg border border-[var(--primary)]/20"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  View Document
+                </a>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Current Holder Widget */}
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 space-y-4 shadow-sm">
-          <h2 className="text-sm font-semibold text-[var(--text-primary)] border-b border-[var(--border)] pb-2 flex items-center gap-2">
-            <User className="w-4 h-4 text-violet-500" />
-            Current Custody
-          </h2>
-          {asset.holder ? (
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] font-bold flex items-center justify-center">
-                  {asset.holder.full_name.charAt(0)}
-                </div>
-                <div>
-                  <div className="font-semibold text-sm text-[var(--text-primary)]">{asset.holder.full_name}</div>
-                  <div className="text-xs text-[var(--text-secondary)]">{asset.holder.email}</div>
+        {/* Current Custody & QR Code Widget Column */}
+        <div className="space-y-6">
+          {/* Custody Card */}
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 space-y-4 shadow-sm">
+            <h2 className="text-sm font-semibold text-[var(--text-primary)] border-b border-[var(--border)] pb-2 flex items-center gap-2">
+              <User className="w-4 h-4 text-violet-500" />
+              Current Custody
+            </h2>
+            {asset.holder ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] font-bold flex items-center justify-center">
+                    {asset.holder.full_name.charAt(0)}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-sm text-[var(--text-primary)]">{asset.holder.full_name}</div>
+                    <div className="text-xs text-[var(--text-secondary)]">{asset.holder.email}</div>
+                  </div>
                 </div>
               </div>
+            ) : (
+              <div className="text-xs text-[var(--text-secondary)] py-6 text-center">
+                No active assignee. This asset is currently sitting in inventory.
+              </div>
+            )}
+          </div>
+
+          {/* QR Code Tag Card */}
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 space-y-4 shadow-sm">
+            <h2 className="text-sm font-semibold text-[var(--text-primary)] border-b border-[var(--border)] pb-2 flex items-center gap-2">
+              <Settings className="w-4 h-4 text-[var(--primary)]" />
+              Asset Tag QR Code
+            </h2>
+            <div className="flex flex-col items-center justify-center space-y-2 py-2">
+              <img 
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://assetflowai.enterprise/assets/${asset.id}`)}&color=0d9488&bgcolor=ffffff`}
+                alt={`Asset QR Code`} 
+                className="w-36 h-36 border border-[var(--border)] rounded-lg p-2 bg-white"
+              />
+              <span className="text-xs text-[var(--text-secondary)] font-mono uppercase tracking-wider">{asset.asset_tag}</span>
             </div>
-          ) : (
-            <div className="text-xs text-[var(--text-secondary)] py-6 text-center">
-              No active assignee. This asset is currently sitting in inventory.
-            </div>
-          )}
+          </div>
         </div>
 
       </div>

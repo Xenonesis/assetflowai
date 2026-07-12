@@ -1,15 +1,71 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
+import { CommandPalette } from "@/components/command-palette";
 import { Shield, LayoutDashboard, Users, Box, Wrench, Calendar, ClipboardCheck, Settings, Bell, Search, LogOut, ArrowLeftRight, BarChart3, History, Building2, Menu, X, ChevronLeft } from "lucide-react";
 import { AIAssistant } from "@/features/ai/components/ai-assistant";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Logo } from "@/components/logo";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  // 1. Listen for Ctrl + K to toggle command palette
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // 2. Real-time Notifications Listener subscription
+  useEffect(() => {
+    const supabase = createClient();
+    let channel: any = null;
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+
+      channel = supabase
+        .channel(`realtime-notifications-${user.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${user.id}`,
+          },
+          (payload: any) => {
+            toast.info(payload.new.title || "New Alert", {
+              description: payload.new.message,
+              action: payload.new.link ? {
+                label: "View",
+                onClick: () => router.push(payload.new.link),
+              } : undefined,
+            });
+          }
+        )
+        .subscribe();
+    });
+
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
+  }, [router]);
 
   const navItems = (isCol: boolean) => (
     <>
@@ -125,7 +181,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               <input 
                 type="text" 
                 placeholder="Search assets, users, or press Ctrl+K..." 
-                className="w-full pl-9 pr-4 py-2 bg-[var(--background)] border border-[var(--border)] rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] text-[var(--text-primary)]"
+                onClick={() => setIsCommandPaletteOpen(true)}
+                readOnly
+                className="w-full pl-9 pr-4 py-2 bg-[var(--background)] border border-[var(--border)] rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] text-[var(--text-primary)] cursor-pointer"
               />
             </div>
           </div>
@@ -152,6 +210,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </div>
 
       <AIAssistant />
+      <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} />
     </div>
   );
 }

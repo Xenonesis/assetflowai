@@ -15,6 +15,7 @@ export const assetSchema = z.object({
   warranty_expiry: z.string().optional(),
   location: z.string().optional(),
   notes: z.string().optional(),
+  photo: z.string().optional().nullable(),
 });
 
 export type AssetValues = z.infer<typeof assetSchema>;
